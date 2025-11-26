@@ -2,6 +2,8 @@ services:
   hy3d:
     build: .
     container_name: hy3d
+    ports:
+      - "7860:7860"
     deploy:
       resources:
         reservations:

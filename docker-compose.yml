@@ -4,6 +4,8 @@ services:
     container_name: hy3d
     ports:
       - "7860:7860"
+    volumes:
+      - ./Hunyuan3D-2.1-DGX:/workspace/Hunyuan3D-2.1-DGX
     deploy:
       resources:
         reservations:
@@ -14,6 +16,6 @@ services:
     environment:
       NVIDIA_VISIBLE_DEVICES: all
       NVIDIA_DRIVER_CAPABILITIES: compute,utility
-    working_dir: /workspace/Hunyuan3D-2.1
+    working_dir: /workspace/Hunyuan3D-2.1-DGX
     tty: true
     stdin_open: true

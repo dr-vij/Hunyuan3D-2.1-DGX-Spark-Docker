@@ -123,35 +123,23 @@ ENV PATH="$CUDA_HOME/bin:${PATH}"
 ENV LD_LIBRARY_PATH="$CUDA_HOME/lib64:${LD_LIBRARY_PATH}"
 ENV TORCH_CUDA_ARCH_LIST="12.1+PTX"
 
-## 5) Clone the repository (DGX fork)
-RUN git clone -b DGX-Spark https://github.com/dr-vij/Hunyuan3D-2.1-DGX /workspace/Hunyuan3D-2.1
-WORKDIR /workspace/Hunyuan3D-2.1
+## 5) Set working directory (project will be mounted as volume)
+WORKDIR /workspace/Hunyuan3D-2.1-DGX
 
-## 6) Install project dependencies
-RUN pip install -r requirements.txt
-
-## 7) Build and install hy3dpaint custom rasterizer
-RUN bash -lc "cd hy3dpaint/custom_rasterizer && pip install -e . --no-build-isolation"
-
-## 8) Ensure system libraries are found first on aarch64
+## 6) Ensure system libraries are found first on aarch64
 ENV LD_LIBRARY_PATH="/usr/lib/aarch64-linux-gnu:${LD_LIBRARY_PATH}"
 
-## 9) Compile the differentiable renderer
-# Note: If this fails, verify that python3.10-config is correct.
-RUN bash -lc "cd hy3dpaint/DifferentiableRenderer && bash compile_mesh_painter.sh"
-
-## 10) Download ESRGAN weights
-RUN mkdir -p hy3dpaint/ckpt \
-    && wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth -P hy3dpaint/ckpt
+## 7) Copy and set up entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # RUNTIME
 ## 1) Expose port for the Gradio UI
 # You can connect to your Spark later via http://spark-XXNN.local:7860/ (replace XXNN with your Spark ID)
 EXPOSE 7860
 
-## 2) Start the Gradio application on container startup
-# Assumes gradio_app.py is located at /workspace/Hunyuan3D-2.1
-CMD ["python", "gradio_app.py", "--host", "0.0.0.0", "--port", "7860"]
+## 2) Use entrypoint script to initialize and start the application
+ENTRYPOINT ["/entrypoint.sh"]
 
 # I spent 8+ hours setting this up, with help from Google Search and JetBrains Junie
 LABEL authors="dr-vij (Viktor Grigorev)"

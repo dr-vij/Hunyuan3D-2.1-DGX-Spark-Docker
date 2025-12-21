@@ -3,6 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+hf_cache/*
+!hf_cache/.gitkeep
+hy3dpaint/ckpt/*
+!hy3dpaint/ckpt/.gitkeep
+
 # C extensions
 *.so
 

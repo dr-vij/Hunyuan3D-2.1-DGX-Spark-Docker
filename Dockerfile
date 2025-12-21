@@ -116,12 +116,61 @@ RUN pip install --no-cache-dir -U "huggingface_hub[hf_xet]"
 # Create/update: /opt/py310/bin/python3-config -> /usr/local/bin/python3.10-config
 RUN ln -sf /usr/local/bin/python3.10-config /opt/py310/bin/python3-config
 
+
+# requirements from hunyuan.
+RUN pip install --no-cache-dir \
+    --extra-index-url https://mirrors.cloud.tencent.com/pypi/simple/ \
+    --extra-index-url https://mirrors.aliyun.com/pypi/simple \
+    ninja==1.11.1.1 \
+    pybind11==2.13.4 \
+    transformers==4.46.0 \
+    diffusers==0.30.0 \
+    accelerate==1.1.1 \
+    pytorch-lightning==1.9.5 \
+    huggingface-hub==0.30.2 \
+    safetensors==0.4.4 \
+    numpy==1.24.4 \
+    scipy==1.14.1 \
+    einops==0.8.0 \
+    pandas==2.2.2 \
+    opencv-python==4.10.0.84 \
+    imageio==2.36.0 \
+    scikit-image==0.24.0 \
+    rembg==2.0.65 \
+    realesrgan==0.3.0 \
+    tb_nightly==2.18.0a20240726 \
+    basicsr==1.4.2 \
+    trimesh==4.4.7 \
+    pymeshlab \
+    pygltflib==1.16.3 \
+    xatlas \
+    open3d==0.18.0 \
+    omegaconf==2.3.0 \
+    pyyaml==6.0.2 \
+    configargparse==1.7 \
+    gradio==5.33.0 \
+    fastapi==0.115.12 \
+    uvicorn==0.34.3 \
+    tqdm==4.66.5 \
+    psutil==6.0.0 \
+    cupy-cuda12x==13.4.1 \
+    onnxruntime==1.16.3 \
+    torchmetrics==1.6.0 \
+    pydantic==2.10.6 \
+    timm \
+    pythreejs \
+    torchdiffeq \
+    deepspeed
+# end of requirements.
+
 ## 4) Set CUDA environment (adjust CUDA version and arch as needed)
 # DGX Spark uses CUDA 13.0 and arch "12.1+PTX".
 ENV CUDA_HOME=/usr/local/cuda-13.0
 ENV PATH="$CUDA_HOME/bin:${PATH}"
 ENV LD_LIBRARY_PATH="$CUDA_HOME/lib64:${LD_LIBRARY_PATH}"
 ENV TORCH_CUDA_ARCH_LIST="12.1+PTX"
+
+ARG ENTRYPOINT_REV=2
 
 ## 5) Set working directory (project will be mounted as volume)
 WORKDIR /workspace/Hunyuan3D-2.1-DGX
@@ -132,11 +181,6 @@ ENV LD_LIBRARY_PATH="/usr/lib/aarch64-linux-gnu:${LD_LIBRARY_PATH}"
 ## 7) Copy and set up entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-
-# RUNTIME
-## 1) Expose port for the Gradio UI
-# You can connect to your Spark later via http://spark-XXNN.local:7860/ (replace XXNN with your Spark ID)
-EXPOSE 7860
 
 ## 2) Use entrypoint script to initialize and start the application
 ENTRYPOINT ["/entrypoint.sh"]

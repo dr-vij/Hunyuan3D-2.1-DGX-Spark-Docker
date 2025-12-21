@@ -12,12 +12,6 @@ fi
 
 cd /workspace/Hunyuan3D-2.1-DGX
 
-# Check and install requirements if needed
-if [ -f "requirements.txt" ]; then
-    echo "Checking Python dependencies..."
-    pip install -r requirements.txt --no-cache-dir || true
-fi
-
 # Build custom_rasterizer if not already built
 if [ -d "hy3dpaint/custom_rasterizer" ]; then
     if [ ! -f "hy3dpaint/custom_rasterizer/.built" ]; then
@@ -53,5 +47,16 @@ else
     echo "ESRGAN weights already present, skipping..."
 fi
 
+echo ""
+echo "========================================"
+echo "Environment ready!"
+echo "========================================"
+echo "Working directory: $(pwd)"
+echo "Python version: $(python --version)"
+echo "PyTorch version: $(python -c 'import torch; print(torch.__version__)')"
+echo "CUDA available: $(python -c 'import torch; print(torch.cuda.is_available())')"
+echo "========================================"
+echo ""
+
 echo "=== Starting Gradio application ==="
-exec python gradio_app.py --host 0.0.0.0 --port 7860
+exec python gradio_app.py --host "${GRADIO_SERVER_HOST:-0.0.0.0}" --port "${GRADIO_SERVER_PORT:-7860}"

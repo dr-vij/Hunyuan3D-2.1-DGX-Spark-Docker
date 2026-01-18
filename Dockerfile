@@ -116,7 +116,6 @@ RUN pip install --no-cache-dir -U "huggingface_hub[hf_xet]"
 # Create/update: /opt/py310/bin/python3-config -> /usr/local/bin/python3.10-config
 RUN ln -sf /usr/local/bin/python3.10-config /opt/py310/bin/python3-config
 
-
 # requirements from hunyuan.
 RUN pip install --no-cache-dir \
     --extra-index-url https://mirrors.cloud.tencent.com/pypi/simple/ \
@@ -167,16 +166,13 @@ RUN pip install --no-cache-dir \
 # DGX Spark uses CUDA 13.0 and arch "12.1+PTX".
 ENV CUDA_HOME=/usr/local/cuda-13.0
 ENV PATH="$CUDA_HOME/bin:${PATH}"
-ENV LD_LIBRARY_PATH="$CUDA_HOME/lib64:${LD_LIBRARY_PATH}"
+ENV LD_LIBRARY_PATH="$CUDA_HOME/lib64:$CUDA_HOME/targets/sbsa-linux/lib:/usr/lib/aarch64-linux-gnu:${LD_LIBRARY_PATH}"
 ENV TORCH_CUDA_ARCH_LIST="12.1+PTX"
 
 ARG ENTRYPOINT_REV=2
 
 ## 5) Set working directory (project will be mounted as volume)
 WORKDIR /workspace/Hunyuan3D-2.1-DGX
-
-## 6) Ensure system libraries are found first on aarch64
-ENV LD_LIBRARY_PATH="/usr/lib/aarch64-linux-gnu:${LD_LIBRARY_PATH}"
 
 ## 7) Copy and set up entrypoint script
 COPY entrypoint.sh /entrypoint.sh

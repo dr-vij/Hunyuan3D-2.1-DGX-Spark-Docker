@@ -167,9 +167,10 @@ RUN pip install --no-cache-dir \
 ENV CUDA_HOME=/usr/local/cuda-13.0
 ENV PATH="$CUDA_HOME/bin:${PATH}"
 ENV LD_LIBRARY_PATH="$CUDA_HOME/lib64:$CUDA_HOME/targets/sbsa-linux/lib:/usr/lib/aarch64-linux-gnu:${LD_LIBRARY_PATH}"
+ENV LIBRARY_PATH="$CUDA_HOME/lib64:$CUDA_HOME/targets/sbsa-linux/lib:/usr/lib/aarch64-linux-gnu:${LIBRARY_PATH}"
 ENV TORCH_CUDA_ARCH_LIST="12.1+PTX"
 
-ARG ENTRYPOINT_REV=2
+ARG ENTRYPOINT_REV=1
 
 ## 5) Set working directory (project will be mounted as volume)
 WORKDIR /workspace/Hunyuan3D-2.1-DGX

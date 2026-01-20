@@ -170,6 +170,26 @@ ENV LD_LIBRARY_PATH="$CUDA_HOME/lib64:$CUDA_HOME/targets/sbsa-linux/lib:/usr/lib
 ENV LIBRARY_PATH="$CUDA_HOME/lib64:$CUDA_HOME/targets/sbsa-linux/lib:/usr/lib/aarch64-linux-gnu:${LIBRARY_PATH}"
 ENV TORCH_CUDA_ARCH_LIST="12.1+PTX"
 
+## 5) Build and install custom CUDA/C++ components
+# We build them here so they are ready in the image.
+# For DifferentiableRenderer, we copy the .so to a cache directory to easily restore it
+# if the project volume mount hides it.
+COPY Hunyuan3D-2.1-DGX/hy3dpaint/custom_rasterizer /tmp/custom_rasterizer
+RUN cd /tmp/custom_rasterizer && \
+    python setup.py build_ext --inplace && \
+    pip install --no-build-isolation --no-cache-dir . && \
+    mkdir -p /opt/build_cache/custom_rasterizer && \
+    cp *.so /opt/build_cache/custom_rasterizer/
+
+COPY Hunyuan3D-2.1-DGX/hy3dpaint/DifferentiableRenderer /tmp/DifferentiableRenderer
+RUN cd /tmp/DifferentiableRenderer && \
+    bash compile_mesh_painter.sh && \
+    mkdir -p /opt/build_cache/DifferentiableRenderer && \
+    cp *.so /opt/build_cache/DifferentiableRenderer/
+
+# Clean up temp files
+RUN rm -rf /tmp/custom_rasterizer /tmp/DifferentiableRenderer
+
 ARG ENTRYPOINT_REV=1
 
 ## 5) Set working directory (project will be mounted as volume)

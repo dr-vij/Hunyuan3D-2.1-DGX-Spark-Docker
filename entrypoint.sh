@@ -12,30 +12,16 @@ fi
 
 cd /workspace/Hunyuan3D-2.1-DGX
 
-# Build custom_rasterizer if not already built
+# Restore pre-compiled components from image cache
+# This handles the case where the volume mount hides files created during docker build
 if [ -d "hy3dpaint/custom_rasterizer" ]; then
-    if [ ! -f "hy3dpaint/custom_rasterizer/.built" ]; then
-        echo "Building custom_rasterizer..."
-        cd hy3dpaint/custom_rasterizer
-        pip install -e . --no-build-isolation
-        touch .built
-        cd /workspace/Hunyuan3D-2.1-DGX
-    else
-        echo "custom_rasterizer already built, skipping..."
-    fi
+    echo "Restoring pre-compiled custom_rasterizer components..."
+    cp -f /opt/build_cache/custom_rasterizer/*.so hy3dpaint/custom_rasterizer/ 2>/dev/null || true
 fi
 
-# Compile DifferentiableRenderer if not already compiled
 if [ -d "hy3dpaint/DifferentiableRenderer" ]; then
-    if [ ! -f "hy3dpaint/DifferentiableRenderer/.built" ]; then
-        echo "Compiling DifferentiableRenderer..."
-        cd hy3dpaint/DifferentiableRenderer
-        bash compile_mesh_painter.sh
-        touch .built
-        cd /workspace/Hunyuan3D-2.1-DGX
-    else
-        echo "DifferentiableRenderer already compiled, skipping..."
-    fi
+    echo "Restoring pre-compiled DifferentiableRenderer components..."
+    cp -f /opt/build_cache/DifferentiableRenderer/*.so hy3dpaint/DifferentiableRenderer/ 2>/dev/null || true
 fi
 
 # Download ESRGAN weights if not present
